@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "_macros.html" import doc_card, filter_bar %}
+{% block title %}Tuần {{ week.label }} — Văn Bản Mới{% endblock %}
+{% block content %}
+<section class="hero hero-small">
+  <p class="hero-kicker"><a href="{{ root }}luu-tru.html">← Lưu trữ</a></p>
+  <h1>Tuần {{ week.label }} · {{ week.count }} văn bản</h1>
+  {% if digest_available %}
+  <a class="btn-accent" href="{{ root }}diem-tin/{{ week.label }}.html">Đọc điểm tin tuần →</a>
+  {% endif %}
+</section>
+
+{{ filter_bar(filters) }}
+
+<section class="card-grid" id="doc-list">
+  {% for doc in week.documents %}{{ doc_card(doc, root) }}{% endfor %}
+</section>
+<p class="empty-state" id="empty-state" hidden>Không có văn bản nào khớp bộ lọc.</p>
+{% endblock %}
+{% block scripts %}<script src="{{ root }}assets/app.js" defer></script>{% endblock %}

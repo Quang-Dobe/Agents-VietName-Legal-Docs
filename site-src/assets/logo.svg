@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Văn Bản Mới">
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="#1e293b" stroke="#fbbf24" stroke-width="3"/>
+  <path fill="#fbbf24" d="M32,13 L34.4,19.6 L41.5,19.85 L35.9,24.2 L37.9,31 L32,27 L26.1,31 L28.1,24.2 L22.5,19.85 L29.6,19.6 Z"/>
+  <rect x="17" y="37" width="30" height="4" rx="2" fill="#94a3b8"/>
+  <rect x="17" y="45" width="22" height="4" rx="2" fill="#94a3b8"/>
+</svg>

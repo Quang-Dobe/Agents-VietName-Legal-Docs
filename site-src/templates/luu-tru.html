@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Lưu trữ — Văn Bản Mới{% endblock %}
+{% block content %}
+<section class="hero hero-small">
+  <h1>Lưu trữ theo tuần</h1>
+  <p class="hero-sub">Toàn bộ các tuần đã có dữ liệu.</p>
+</section>
+{% for year, weeks in years.items() %}
+<section class="archive-year">
+  <h2>{{ year }}</h2>
+  <ul class="archive-list">
+    {% for week in weeks %}
+    <li>
+      <a class="archive-week" href="{{ root }}tuan/{{ week.label }}.html">Tuần {{ week.label }}</a>
+      <span class="archive-count">{{ week.count }} văn bản</span>
+      {% if week.digest_available %}
+      <a class="archive-digest" href="{{ root }}diem-tin/{{ week.label }}.html">Điểm tin</a>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endfor %}
+{% endblock %}

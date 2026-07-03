@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Điểm tin tuần {{ label }} — Văn Bản Mới{% endblock %}
+{% block content %}
+<article class="digest">
+  <p class="hero-kicker"><a href="{{ root }}tuan/{{ label }}.html">← Văn bản tuần {{ label }}</a></p>
+  {{ content | safe }}
+</article>
+{% if all_digests | length > 1 %}
+<nav class="digest-nav">
+  <h2>Các tuần khác</h2>
+  <ul>
+    {% for d in all_digests %}{% if d != label %}
+    <li><a href="{{ root }}diem-tin/{{ d }}.html">Điểm tin tuần {{ d }}</a></li>
+    {% endif %}{% endfor %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0f172a">
+  <title>{% block title %}Văn Bản Mới{% endblock %}</title>
+  <meta name="description" content="{% block desc %}Điểm tin pháp luật Việt Nam, mỗi tuần một bản. Tóm tắt ngắn, dễ hiểu, kèm link bản gốc.{% endblock %}">
+  <link rel="icon" type="image/svg+xml" href="{{ root }}assets/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ root }}assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="{{ root }}assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="{{ root }}assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="{{ root }}index.html">
+      <img src="{{ root }}assets/logo.svg" alt="" width="30" height="30">
+      <span>Văn Bản <em>Mới</em></span>
+    </a>
+    <nav class="site-nav">
+      <a href="{{ root }}index.html">Tuần này</a>
+      {% if has_digest_latest %}<a href="{{ root }}diem-tin/{{ latest_week }}.html">Điểm tin</a>{% endif %}
+      <a href="{{ root }}luu-tru.html">Lưu trữ</a>
+    </nav>
+  </div>
+</header>
+
+{% if demo_mode %}
+<div class="demo-banner wrap" role="note">
+  ⚠️ Đây là <strong>dữ liệu mẫu</strong> để xem giao diện. Dữ liệu thật sẽ có sau lần chạy đầu tiên.
+</div>
+{% endif %}
+
+<main class="wrap">
+{% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Dữ liệu lấy từ nguồn công khai của Chính phủ: vanban.chinhphu.vn, congbao.chinhphu.vn.</p>
+    <p>Tóm tắt do AI viết, có thể sai sót. <strong>Luôn đọc bản gốc trước khi áp dụng.</strong></p>
+  </div>
+</footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>
