@@ -19,7 +19,9 @@ Với từng văn bản:
    (chưa đến ngày → `chua_hieu_luc`; đã đến → `con_hieu_luc`; null → `chua_hieu_luc`).
 5. Văn bản có sửa đổi/thay thế văn bản khác → điền `sua_doi_thay_the` (chỉ số hiệu, không kèm tên).
 
-Sau khi xong tất cả văn bản: viết `data/weekly-digest/{năm}-week-{tuần}.md` — "Điểm tin tuần":
+Sau khi xong tất cả văn bản: VIẾT LẠI `data/weekly-digest/{năm}-week-{tuần}.md` của tuần
+hiện tại — "Điểm tin tuần" — bao phủ TOÀN BỘ văn bản của tuần tính đến hôm nay (đọc file tuần
+để lấy cả các văn bản đã thêm từ những run trước trong tuần):
 - Dòng 1: heading `# Điểm tin tuần {tuần}/{năm}`.
 - Mở đầu 2–3 câu: tuần này có gì đáng chú ý nhất.
 - 3–5 điểm nhấn (heading `##` mỗi điểm), mỗi điểm 2–3 câu, chọn văn bản ảnh hưởng nhiều người nhất.

@@ -1,8 +1,8 @@
 # Văn Bản Mới — vn-legal-docs-weekly
 
-Điểm tin pháp luật Việt Nam, mỗi tuần một bản. Crawl văn bản mới ban hành từ nguồn công khai
-của Chính phủ, tóm tắt ngắn gọn bằng AI (chạy trong Claude Code Routine), xuất static site
-lên GitHub Pages.
+Điểm tin pháp luật Việt Nam. Crawl văn bản mới ban hành **hàng ngày** từ nguồn công khai
+của Chính phủ, tóm tắt ngắn gọn bằng AI (chạy trong Claude Code Routine), gom theo tuần,
+xuất static site lên GitHub Pages.
 
 - **Site:** GitHub Pages, deploy tự động qua Actions (`.github/workflows/deploy-pages.yml`) khi push `main`
 - **Kế hoạch chi tiết:** [`PLAN.md`](PLAN.md)
