@@ -96,4 +96,5 @@ Chỉ dùng `Khác` khi thực sự không map được.
 
 - Custom cloud environment cần allowlist: `vanban.chinhphu.vn`, `congbao.chinhphu.vn`, `*.chinhphu.vn`, `vbpl.vn`.
 - Setup: `pip install requests beautifulsoup4 jinja2 markdown`.
-- GitHub Pages: branch `main`, thư mục `/docs`.
+- GitHub Pages: deploy tự động qua GitHub Actions (`.github/workflows/deploy-pages.yml`,
+  upload artifact `docs/` khi push `main`). Yêu cầu Settings → Pages → Source = "GitHub Actions".

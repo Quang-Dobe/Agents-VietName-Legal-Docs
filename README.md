@@ -4,7 +4,7 @@
 của Chính phủ, tóm tắt ngắn gọn bằng AI (chạy trong Claude Code Routine), xuất static site
 lên GitHub Pages.
 
-- **Site:** GitHub Pages, branch `main`, thư mục `/docs`
+- **Site:** GitHub Pages, deploy tự động qua Actions (`.github/workflows/deploy-pages.yml`) khi push `main`
 - **Kế hoạch chi tiết:** [`PLAN.md`](PLAN.md)
 - **Quy tắc dữ liệu + vận hành cho agent:** [`CLAUDE.md`](CLAUDE.md)
 - **Prompt routine hàng tuần:** [`ROUTINE_PROMPT.md`](ROUTINE_PROMPT.md)
