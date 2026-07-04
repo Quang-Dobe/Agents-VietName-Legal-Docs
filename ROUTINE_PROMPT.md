@@ -1,16 +1,18 @@
-# Routine prompt — cập nhật hàng ngày
+# Routine prompt — cập nhật định kỳ 2 ngày/lần
 
-> **Cách dùng:** copy toàn bộ phần trong khối dưới đây vào ô prompt khi tạo Routine trên claude.ai/code.
-> Cấu hình routine: **schedule** daily, 08:00 (Asia/Ho_Chi_Minh) · **repo** Quang-Dobe/Agents-VietName-Legal-Docs
-> · **environment** `vn-legal-docs` (network Custom + allowlist chinhphu.vn/vbpl.vn) · cho phép push branch `main`.
+> **Cách dùng:** routine đã được tạo tự động (xem `data/run-log.md` lần chạy đầu). Nếu cần tạo lại
+> bằng tay trên claude.ai/code: **schedule** mỗi 2 ngày, ~08:00 (Asia/Ho_Chi_Minh) — cron UTC `7 1 */2 * *`
+> · **repo** Quang-Dobe/Agents-VietName-Legal-Docs · **environment** `vn-legal-docs`
+> (network Custom + allowlist chinhphu.vn/vbpl.vn) · cho phép push branch `main`
+> · prompt = khối dưới đây.
 >
-> Dữ liệu vẫn gom theo TUẦN ISO: run hàng ngày chỉ thêm văn bản mới vào file tuần hiện tại
+> Dữ liệu vẫn gom theo TUẦN ISO: mỗi run chỉ thêm văn bản mới vào file tuần tương ứng
 > và cập nhật dần bản Điểm tin của tuần đó.
 
 ---
 
 Bạn là orchestrator của dự án **vn-legal-docs-weekly**: crawl văn bản pháp luật Việt Nam
-mới ban hành, tóm tắt dễ hiểu, build static site. Hôm nay chạy cập nhật hàng ngày.
+mới ban hành, tóm tắt dễ hiểu, build static site. Hôm nay chạy cập nhật định kỳ (2 ngày/lần).
 
 ĐỌC TRƯỚC KHI LÀM: `CLAUDE.md` (schema, taxonomy, văn phong tóm tắt, quy tắc crawl,
 ghi chú cấu trúc trang nguồn) và `data/index.json`.
@@ -18,7 +20,7 @@ ghi chú cấu trúc trang nguồn) và `data/index.json`.
 ## Các bước
 
 0. **Xác định phạm vi.** Tính tuần ISO hiện tại. Khoảng ngày crawl = từ (ngày ban hành mới
-   nhất có trong index − 1 ngày) đến hôm nay — bình thường chỉ 1–2 ngày; tối đa 14 ngày nếu
+   nhất có trong index − 1 ngày) đến hôm nay — bình thường 2–3 ngày; tối đa 14 ngày nếu
    các run trước bị lỡ. Nếu CLAUDE.md vẫn còn ghi "Run 0 recon chưa chạy": thực hiện Run 0
    trong `BACKFILL_PROMPTS.md` trước, rồi mới tiếp tục các bước dưới.
 1. **Crawl song song.** Spawn 2 subagent `crawler-chinhphu` và `crawler-congbao` với khoảng
@@ -44,9 +46,9 @@ ghi chú cấu trúc trang nguồn) và `data/index.json`.
    + kiểm tra sanity output). Site deploy tự động qua GitHub Actions khi push main —
    không cần làm gì thêm.
 8. **Run log.** Thêm 1 dòng vào bảng trong `data/run-log.md`: ngày giờ UTC, loại run
-   (`daily`), nguồn ok/fail, số văn bản mới, tổng số request đã dùng, ghi chú.
+   (`update`), nguồn ok/fail, số văn bản mới, tổng số request đã dùng, ghi chú.
 9. **Commit + push.** `git pull --rebase origin main`, commit toàn bộ thay đổi với message
-   `daily: {YYYY-MM-DD} — {N} văn bản mới`, push lên `main`
+   `update: {YYYY-MM-DD} — {N} văn bản mới`, push lên `main`
    (retry tối đa 4 lần, backoff 2s/4s/8s/16s nếu lỗi mạng).
 
 ## Nguyên tắc bắt buộc

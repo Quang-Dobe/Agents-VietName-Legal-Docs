@@ -1,13 +1,13 @@
 # vn-legal-docs-weekly
 
-Crawl văn bản pháp luật Việt Nam mới ban hành **hàng ngày**, tóm tắt bằng AI, gom dữ liệu
-theo tuần ISO, xuất static site lên GitHub Pages.
+Crawl văn bản pháp luật Việt Nam mới ban hành **mỗi 2 ngày một lần**, tóm tắt bằng AI,
+gom dữ liệu theo tuần ISO, xuất static site lên GitHub Pages.
 
 ## Cấu trúc repo
 
 ```
 .claude/agents/      # 4 subagent: crawler-chinhphu, crawler-congbao, summarizer, site-builder
-ROUTINE_PROMPT.md    # prompt routine hàng ngày (dữ liệu vẫn gom theo tuần)
+ROUTINE_PROMPT.md    # prompt routine định kỳ 2 ngày/lần (dữ liệu vẫn gom theo tuần)
 BACKFILL_PROMPTS.md  # chuỗi prompt backfill một lần
 scripts/             # crawl / merge / validate / update_status / build_site
 site-src/            # templates Jinja2 + assets (KHÔNG sửa docs/ bằng tay)
@@ -90,7 +90,7 @@ Chỉ dùng `Khác` khi thực sự không map được.
 - **Self-healing:** script fail → agent tự fetch và parse tay → nếu thành công, PHẢI sửa script + cập nhật "Ghi chú cấu trúc trang" ở trên, commit cùng lần.
 - **An toàn dữ liệu:** không bao giờ xoá/ghi đè dữ liệu tuần cũ; chỉ thêm văn bản mới và cập nhật `trang_thai`/`bi_sua_doi_boi`.
 - **Build site:** chỉ qua `python3 scripts/build_site.py`; không sửa tay file trong `docs/`.
-- **Commit:** run hàng ngày → `daily: {YYYY-MM-DD} — {N} văn bản mới`; backfill →
+- **Commit:** run định kỳ → `update: {YYYY-MM-DD} — {N} văn bản mới`; backfill →
   `backfill: {năm}-W{tuần} — {N} văn bản`; sửa script → `fix(crawler): ...` kèm lý do.
 - Cả 2 nguồn fail → ghi `data/run-log.md`, commit run-log, DỪNG (không build, không xoá gì).
 
