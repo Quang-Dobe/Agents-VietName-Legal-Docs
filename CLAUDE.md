@@ -27,10 +27,35 @@ KHÔNG crawl thuvienphapluat.vn / luatvietnam.vn (nội dung trả phí, ToS ch�
 
 ### Ghi chú cấu trúc trang (cập nhật sau mỗi lần selectors thay đổi)
 
-> **TODO — Run 0 recon chưa chạy.** Chưa xác nhận: param lọc ngày của vanban.chinhphu.vn,
-> selectors của cả 2 trang, nội dung robots.txt. Run 0 phải: fetch robots.txt cả 2 nguồn,
-> dump HTML trang danh sách + 1 trang chi tiết, chốt selectors, điền vào mục này, và sửa
-> `scripts/crawl_*.py` cho khớp. Trước đó, 2 script crawl sẽ báo lỗi rõ ràng nếu parse ra 0 kết quả.
+> **Run 0 recon đã chạy (2026-07-08).** robots.txt cả 2 nguồn đều `Allow: /`, không có
+> `Crawl-delay` — rate limit 3s/request của repo là đủ an toàn.
+
+**vanban.chinhphu.vn** (nguồn chính, ASP.NET WebForms):
+- Trang danh sách `{BASE}/he-thong-van-ban?classid=1&mode=1` (GET) trả về **50 văn bản mới
+  nhất toàn hệ thống**, sort `ngay_ban_hanh` giảm dần. Form lọc theo khoảng ngày là postback
+  (`__VIEWSTATE`), KHÔNG có param GET tương đương — script lấy 50 dòng mặc định rồi lọc theo
+  khoảng ngày phía client. Nếu văn bản cũ nhất trong 50 dòng vẫn nằm trong khoảng ngày cần lấy
+  → có thể sót văn bản cũ hơn (`possibly_truncated: true` trong output script) → agent tự fetch
+  bù (xem "Self-healing").
+- Mỗi dòng trong `table.search-result tr`: `span.code` (so_hieu) nằm trong thẻ `a` cha
+  (`link_goc`, dạng `/?pageid=...&docid=...&classid=1`), `span.issued-date` (ngày ban hành,
+  `DD/MM/YYYY`), `span.substract` (trích yếu rút gọn).
+- Trang chi tiết: bảng gồm các `<tr><td class="col1">Nhãn</td><td>Giá trị</td></tr>`. Nhãn dùng:
+  `Số ký hiệu`, `Ngày ban hành` (`DD-MM-YYYY`), `Ngày có hiệu lực` (`DD-MM-YYYY`, dòng có thể
+  vắng nếu chưa xác định), `Loại văn bản` (khớp thẳng taxonomy `loai`), `Cơ quan ban hành`,
+  `Người ký`, `Trích yếu` (đầy đủ hơn bản rút gọn ở trang danh sách).
+
+**congbao.chinhphu.vn** (nguồn đối chiếu):
+- Danh sách "Văn bản mới nhất": `/van-ban-dang-cong-bao.htm` rồi `/van-ban-dang-cong-bao/trang-{N}.htm`,
+  sort mới → cũ. Mỗi văn bản là `div.box--list div.item--vb`: `span.kh` chứa text
+  `"Ký hiệu: {so_hieu}"`; `div.middle a.sapo` (`title` = trích yếu, `href` = link chi tiết
+  `/van-ban/....htm`); `div.bot span.days` chứa text `"[Ban hành: DD/MM/YYYY]"`.
+- Trang chi tiết: `div.document--focus div.row` > `span.name` (nhãn) + `div.value
+  span.child-value` (giá trị). Nhãn dùng: `Số, ký hiệu`, `Loại văn bản`, `Cơ quan ban hành`
+  (thường IN HOA — script title-case lại cho nhất quán), `Ngày ban hành` (`DD/MM/YYYY`),
+  `Ngày hiệu lực` (`DD/MM/YYYY`, có thể rỗng), `Trích yếu`.
+- Một số văn bản congbao thuộc loại ngoài enum `loai` của schema (vd. công điện, chỉ thị) —
+  các văn bản này bị loại khi validate; chỉ giữ văn bản khớp `LOAI_HOP_LE`.
 
 ### Quy tắc crawl
 
