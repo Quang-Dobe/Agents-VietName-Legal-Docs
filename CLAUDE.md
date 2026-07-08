@@ -32,11 +32,22 @@ KHÔNG crawl thuvienphapluat.vn / luatvietnam.vn (nội dung trả phí, ToS ch�
 
 **vanban.chinhphu.vn** (nguồn chính, ASP.NET WebForms):
 - Trang danh sách `{BASE}/he-thong-van-ban?classid=1&mode=1` (GET) trả về **50 văn bản mới
-  nhất toàn hệ thống**, sort `ngay_ban_hanh` giảm dần. Form lọc theo khoảng ngày là postback
-  (`__VIEWSTATE`), KHÔNG có param GET tương đương — script lấy 50 dòng mặc định rồi lọc theo
-  khoảng ngày phía client. Nếu văn bản cũ nhất trong 50 dòng vẫn nằm trong khoảng ngày cần lấy
-  → có thể sót văn bản cũ hơn (`possibly_truncated: true` trong output script) → agent tự fetch
-  bù (xem "Self-healing").
+  nhất toàn hệ thống** (trang 1), sort `ngay_ban_hanh` giảm dần. Không có param GET lọc
+  khoảng ngày; form nâng cao dùng postback ASP.NET (`__VIEWSTATE`).
+- **Phân trang (xác nhận 2026-07-08):** link "trang kế" trong HTML là
+  `javascript:__doPostBack('ctrl_191017_163$grvDocument','Page$<N>')` — đây là postback
+  ĐỒNG BỘ (full-page), KHÔNG phải AJAX/UpdatePanel (`PageRequestManager._initialize` được
+  gọi với danh sách UpdatePanel rỗng `[]`). Để lấy trang N: POST lại cùng URL với TOÀN BỘ
+  input/select/textarea hiện có của trang trước (đặc biệt `__VIEWSTATE`,
+  `__VIEWSTATEGENERATOR`, `__EVENTVALIDATION`) cộng `__EVENTTARGET=ctrl_191017_163$grvDocument`
+  + `__EVENTARGUMENT=Page$<N>`. KHÔNG thêm header AJAX (`X-MicrosoftAjax`, `__ASYNCPOST`) —
+  làm vậy server trả lỗi (redirect JSON tới trang 500) vì không có UpdatePanel thật.
+  Script (`crawl_vanban.py::fetch_all_list_rows`) GET trang 1 rồi POST các trang kế tiếp cho
+  tới khi ngày ban hành cũ nhất của trang hiện tại < `--from`, rồi lọc theo khoảng ngày phía
+  client. Nếu vẫn chưa lùi đủ (hết trang / chạm `MAX_LIST_PAGES`/giới hạn request) →
+  `possibly_truncated: true` trong output → agent tự fetch bù (xem "Self-healing").
+- Trang chi tiết đôi khi trả `502 Bad Gateway` thoáng qua — script retry tối đa 3 lần cho
+  status `502/503/504` (đã có sẵn trong `fetch()`).
 - Mỗi dòng trong `table.search-result tr`: `span.code` (so_hieu) nằm trong thẻ `a` cha
   (`link_goc`, dạng `/?pageid=...&docid=...&classid=1`), `span.issued-date` (ngày ban hành,
   `DD/MM/YYYY`), `span.substract` (trích yếu rút gọn).
