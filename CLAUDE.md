@@ -27,10 +27,46 @@ KHÔNG crawl thuvienphapluat.vn / luatvietnam.vn (nội dung trả phí, ToS ch�
 
 ### Ghi chú cấu trúc trang (cập nhật sau mỗi lần selectors thay đổi)
 
-> **TODO — Run 0 recon chưa chạy.** Chưa xác nhận: param lọc ngày của vanban.chinhphu.vn,
-> selectors của cả 2 trang, nội dung robots.txt. Run 0 phải: fetch robots.txt cả 2 nguồn,
-> dump HTML trang danh sách + 1 trang chi tiết, chốt selectors, điền vào mục này, và sửa
-> `scripts/crawl_*.py` cho khớp. Trước đó, 2 script crawl sẽ báo lỗi rõ ràng nếu parse ra 0 kết quả.
+> **Run 0 recon đã chạy (2026-07-08).** robots.txt cả 2 nguồn đều `Allow: /`, không có
+> `Crawl-delay` — rate limit 3s/request của repo là đủ an toàn.
+
+**vanban.chinhphu.vn** (nguồn chính, ASP.NET WebForms):
+- Trang danh sách `{BASE}/he-thong-van-ban?classid=1&mode=1` (GET) trả về **50 văn bản mới
+  nhất toàn hệ thống** (trang 1), sort `ngay_ban_hanh` giảm dần. Không có param GET lọc
+  khoảng ngày; form nâng cao dùng postback ASP.NET (`__VIEWSTATE`).
+- **Phân trang (xác nhận 2026-07-08):** link "trang kế" trong HTML là
+  `javascript:__doPostBack('ctrl_191017_163$grvDocument','Page$<N>')` — đây là postback
+  ĐỒNG BỘ (full-page), KHÔNG phải AJAX/UpdatePanel (`PageRequestManager._initialize` được
+  gọi với danh sách UpdatePanel rỗng `[]`). Để lấy trang N: POST lại cùng URL với TOÀN BỘ
+  input/select/textarea hiện có của trang trước (đặc biệt `__VIEWSTATE`,
+  `__VIEWSTATEGENERATOR`, `__EVENTVALIDATION`) cộng `__EVENTTARGET=ctrl_191017_163$grvDocument`
+  + `__EVENTARGUMENT=Page$<N>`. KHÔNG thêm header AJAX (`X-MicrosoftAjax`, `__ASYNCPOST`) —
+  làm vậy server trả lỗi (redirect JSON tới trang 500) vì không có UpdatePanel thật.
+  Script (`crawl_vanban.py::fetch_all_list_rows`) GET trang 1 rồi POST các trang kế tiếp cho
+  tới khi ngày ban hành cũ nhất của trang hiện tại < `--from`, rồi lọc theo khoảng ngày phía
+  client. Nếu vẫn chưa lùi đủ (hết trang / chạm `MAX_LIST_PAGES`/giới hạn request) →
+  `possibly_truncated: true` trong output → agent tự fetch bù (xem "Self-healing").
+- Trang chi tiết đôi khi trả `502 Bad Gateway` thoáng qua — script retry tối đa 3 lần cho
+  status `502/503/504` (đã có sẵn trong `fetch()`).
+- Mỗi dòng trong `table.search-result tr`: `span.code` (so_hieu) nằm trong thẻ `a` cha
+  (`link_goc`, dạng `/?pageid=...&docid=...&classid=1`), `span.issued-date` (ngày ban hành,
+  `DD/MM/YYYY`), `span.substract` (trích yếu rút gọn).
+- Trang chi tiết: bảng gồm các `<tr><td class="col1">Nhãn</td><td>Giá trị</td></tr>`. Nhãn dùng:
+  `Số ký hiệu`, `Ngày ban hành` (`DD-MM-YYYY`), `Ngày có hiệu lực` (`DD-MM-YYYY`, dòng có thể
+  vắng nếu chưa xác định), `Loại văn bản` (khớp thẳng taxonomy `loai`), `Cơ quan ban hành`,
+  `Người ký`, `Trích yếu` (đầy đủ hơn bản rút gọn ở trang danh sách).
+
+**congbao.chinhphu.vn** (nguồn đối chiếu):
+- Danh sách "Văn bản mới nhất": `/van-ban-dang-cong-bao.htm` rồi `/van-ban-dang-cong-bao/trang-{N}.htm`,
+  sort mới → cũ. Mỗi văn bản là `div.box--list div.item--vb`: `span.kh` chứa text
+  `"Ký hiệu: {so_hieu}"`; `div.middle a.sapo` (`title` = trích yếu, `href` = link chi tiết
+  `/van-ban/....htm`); `div.bot span.days` chứa text `"[Ban hành: DD/MM/YYYY]"`.
+- Trang chi tiết: `div.document--focus div.row` > `span.name` (nhãn) + `div.value
+  span.child-value` (giá trị). Nhãn dùng: `Số, ký hiệu`, `Loại văn bản`, `Cơ quan ban hành`
+  (thường IN HOA — script title-case lại cho nhất quán), `Ngày ban hành` (`DD/MM/YYYY`),
+  `Ngày hiệu lực` (`DD/MM/YYYY`, có thể rỗng), `Trích yếu`.
+- Một số văn bản congbao thuộc loại ngoài enum `loai` của schema (vd. công điện, chỉ thị) —
+  các văn bản này bị loại khi validate; chỉ giữ văn bản khớp `LOAI_HOP_LE`.
 
 ### Quy tắc crawl
 
