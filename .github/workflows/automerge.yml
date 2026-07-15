@@ -1,0 +1,38 @@
+name: Auto-merge PR
+
+# Tự động merge MỌI pull request KHÔNG phải bản nháp (draft) vào nhánh đích.
+# - PR nháp (draft) bị bỏ qua; chỉ merge khi được đánh dấu "Ready for review".
+# - Merge bằng squash + xoá nhánh nguồn cho gọn lịch sử.
+# - Sau khi merge vào main, dispatch workflow deploy-pages để cập nhật GitHub Pages
+#   (push do GITHUB_TOKEN tạo ra KHÔNG tự kích hoạt workflow khác nên phải gọi tay).
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: automerge-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  automerge:
+    # Bỏ qua PR nháp — chỉ chạy với PR thường.
+    if: ${{ github.event.pull_request.draft == false }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge PR (không phải draft)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge "$PR_URL" --squash --delete-branch
+
+      - name: Dispatch deploy GitHub Pages
+        if: ${{ success() && github.event.pull_request.base.ref == 'main' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run deploy-pages.yml --ref main
