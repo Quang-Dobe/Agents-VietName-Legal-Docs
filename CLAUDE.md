@@ -67,6 +67,12 @@ KHÔNG crawl thuvienphapluat.vn / luatvietnam.vn (nội dung trả phí, ToS ch�
   `Ngày hiệu lực` (`DD/MM/YYYY`, có thể rỗng), `Trích yếu`.
 - Một số văn bản congbao thuộc loại ngoài enum `loai` của schema (vd. công điện, chỉ thị) —
   các văn bản này bị loại khi validate; chỉ giữ văn bản khớp `LOAI_HOP_LE`.
+- **Độ trễ đăng công báo (quan sát 2026-07-15):** danh sách "Văn bản mới nhất" sort đúng theo
+  `ngay_ban_hanh` giảm dần, nhưng việc đăng lên công báo có độ trễ so với ngày ban hành thực tế
+  (có thể tới ~1 tuần). Vì vậy khi crawl với `--to` gần ngày hiện tại, kết quả `0 văn bản` sau
+  đúng 1 request (dừng ngay ở trang 1 vì văn bản mới nhất đã cũ hơn `--from`) là **kết quả hợp
+  lệ**, KHÔNG phải lỗi script — cần xác nhận bằng cách fetch tay 2-3 trang đầu xem ngày có giảm
+  dần đơn điệu hay không trước khi kết luận có bug.
 
 ### Quy tắc crawl
 
