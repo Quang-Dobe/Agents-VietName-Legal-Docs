@@ -3,7 +3,8 @@
 > **Cách dùng:** routine đã được tạo tự động (xem `data/run-log.md` lần chạy đầu). Nếu cần tạo lại
 > bằng tay trên claude.ai/code: **schedule** mỗi 2 ngày, ~08:00 (Asia/Ho_Chi_Minh) — cron UTC `7 1 */2 * *`
 > · **repo** Quang-Dobe/Agents-VietName-Legal-Docs · **environment** `vn-legal-docs`
-> (network Custom + allowlist chinhphu.vn/vbpl.vn) · cho phép push branch `main`
+> (network Custom + allowlist chinhphu.vn/vbpl.vn) · cho phép push nhánh làm việc + mở
+> pull request (workflow `.github/workflows/automerge.yml` tự merge PR không phải draft)
 > · prompt = khối dưới đây.
 >
 > Dữ liệu vẫn gom theo TUẦN ISO: mỗi run chỉ thêm văn bản mới vào file tuần tương ứng
@@ -26,12 +27,12 @@ ghi chú cấu trúc trang nguồn) và `data/index.json`.
 1. **Crawl song song.** Spawn 2 subagent `crawler-chinhphu` và `crawler-congbao` với khoảng
    ngày trên, mỗi agent ghi ra một file tạm riêng.
    - Một nguồn fail → ghi nhận vào run-log, tiếp tục với nguồn còn lại.
-   - CẢ HAI fail → ghi `data/run-log.md`, commit riêng run-log, push, **DỪNG HẲN**
-     (không build site, không sửa/xoá bất kỳ dữ liệu nào).
+   - CẢ HAI fail → ghi `data/run-log.md`, commit riêng run-log, mở PR thường (xem bước 9),
+     **DỪNG HẲN** (không build site, không sửa/xoá bất kỳ dữ liệu nào).
 2. **Gộp + dedupe.** `python3 scripts/merge_dedupe.py <file1> <file2> --out <file_moi>`.
    Kết quả là danh sách văn bản MỚI (chưa có trong index).
-   - Nếu RỖNG: thêm dòng run-log "không có văn bản mới", commit run-log, push, KẾT THÚC
-     (bỏ qua các bước dưới — không cần build lại site).
+   - Nếu RỖNG: thêm dòng run-log "không có văn bản mới", commit run-log, mở PR thường
+     (xem bước 9), KẾT THÚC (bỏ qua các bước dưới — không cần build lại site).
 3. **Tóm tắt.** Spawn subagent `summarizer` với file văn bản mới. Summarizer phải điền đủ:
    `tom_tat_ai`, `linh_vuc`, `trang_thai`, `ngay_hieu_luc` (nếu tìm được), `sua_doi_thay_the`.
    Sau đó summarizer VIẾT LẠI `data/weekly-digest/{năm}-week-{tuần}.md` của tuần hiện tại
@@ -47,9 +48,13 @@ ghi chú cấu trúc trang nguồn) và `data/index.json`.
    không cần làm gì thêm.
 8. **Run log.** Thêm 1 dòng vào bảng trong `data/run-log.md`: ngày giờ UTC, loại run
    (`update`), nguồn ok/fail, số văn bản mới, tổng số request đã dùng, ghi chú.
-9. **Commit + push.** `git pull --rebase origin main`, commit toàn bộ thay đổi với message
-   `update: {YYYY-MM-DD} — {N} văn bản mới`, push lên `main`
-   (retry tối đa 4 lần, backoff 2s/4s/8s/16s nếu lỗi mạng).
+9. **Commit + mở PR.** `git fetch origin main`, tạo nhánh làm việc mới từ `origin/main`
+   (vd. `routine/update-{YYYY-MM-DD}`), commit toàn bộ thay đổi với message
+   `update: {YYYY-MM-DD} — {N} văn bản mới`, push nhánh đó lên origin
+   (retry tối đa 4 lần, backoff 2s/4s/8s/16s nếu lỗi mạng). Sau đó mở **pull request thường
+   (KHÔNG phải draft)** vào `main` với tiêu đề trùng message commit.
+   - Workflow `.github/workflows/automerge.yml` sẽ tự động merge PR không phải draft vào
+     `main` rồi dispatch deploy GitHub Pages — KHÔNG cần merge tay hay push thẳng lên `main`.
 
 ## Nguyên tắc bắt buộc
 
