@@ -4,7 +4,7 @@
 công khai của Chính phủ, tóm tắt ngắn gọn bằng AI (chạy trong Claude Code Routine),
 gom theo tuần, xuất static site lên GitHub Pages.
 
-- **Site:** GitHub Pages, deploy tự động qua Actions (`.github/workflows/deploy-pages.yml`) khi push `main`
+- **Site:** <https://quang-dobe.github.io/Agents-VietName-Legal-Docs/> — GitHub Pages, deploy tự động qua Actions (`.github/workflows/deploy-pages.yml`) khi push `main`
 - **Kế hoạch chi tiết:** [`PLAN.md`](PLAN.md)
 - **Quy tắc dữ liệu + vận hành cho agent:** [`CLAUDE.md`](CLAUDE.md)
 - **Prompt routine hàng tuần:** [`ROUTINE_PROMPT.md`](ROUTINE_PROMPT.md)
