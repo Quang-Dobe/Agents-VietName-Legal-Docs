@@ -80,6 +80,22 @@ def fetch(url, method="GET", data=None, params=None, retries=3):
     raise last_exc
 
 
+# Một số so_hieu trên trang nguồn lẫn ký tự Cyrillic trông giống hệt Latin (vd. 'Р'
+# U+0420 thay cho 'P' U+0050) — chuẩn hoá về Latin để khớp SO_HIEU_RE và tránh trùng lặp
+# giả trong index.json.
+_CYRILLIC_TO_LATIN = str.maketrans({
+    "А": "A", "В": "B", "Е": "E", "К": "K", "М": "M", "Н": "H", "О": "O",
+    "Р": "P", "С": "C", "Т": "T", "Х": "X",
+    "а": "a", "е": "e", "о": "o", "р": "p", "с": "c", "х": "x", "у": "y",
+})
+
+
+def normalize_so_hieu(text):
+    if not text:
+        return text
+    return text.translate(_CYRILLIC_TO_LATIN)
+
+
 def vn_date_slash_to_iso(text):
     """'04/07/2026' → '2026-07-04'."""
     m = re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", text or "")
@@ -143,7 +159,7 @@ def parse_list_page(soup):
         date_span = tr.select_one("span.issued-date")
         substract = tr.select_one("span.substract")
         docs.append({
-            "so_hieu": code_span.get_text(strip=True),
+            "so_hieu": normalize_so_hieu(code_span.get_text(strip=True)),
             "ngay_ban_hanh": vn_date_slash_to_iso(date_span.get_text(strip=True) if date_span else ""),
             "trich_yeu": substract.get_text(strip=True) if substract else None,
             "link_goc": href,
@@ -151,12 +167,29 @@ def parse_list_page(soup):
     return docs
 
 
+PARSE_RETRIES = 3  # xem "Ghi chú độ tin cậy mạng" trong CLAUDE.md — thi thoảng một response 200
+                    # hợp lệ về HTTP nhưng không parse ra dòng nào (flaky proxy/mạng), tự hồi
+                    # phục bằng cách fetch lại trước khi kết luận hết trang/đổi cấu trúc.
+
+
+def fetch_list_page(method="GET", data=None):
+    """Fetch trang danh sách (GET trang 1 hoặc POST postback trang kế), retry tối đa
+    PARSE_RETRIES lần nếu parse ra 0 dòng — tránh kết luận nhầm "hết trang"/"đổi cấu trúc"
+    khi thực ra chỉ là một response bị lỗi thoáng qua."""
+    soup, rows = None, []
+    for _ in range(PARSE_RETRIES):
+        html = fetch(LIST_PAGE_URL, method=method, data=data)
+        soup = BeautifulSoup(html, "html.parser")
+        rows = parse_list_page(soup)
+        if rows:
+            return soup, rows
+    return soup, rows
+
+
 def fetch_all_list_rows(from_date):
     """GET trang 1, rồi POST (postback) các trang kế tiếp cho tới khi ngày ban hành cũ nhất
     của trang hiện tại < from_date, hoặc hết trang, hoặc chạm MAX_LIST_PAGES."""
-    html = fetch(LIST_PAGE_URL, method="GET")
-    soup = BeautifulSoup(html, "html.parser")
-    rows = parse_list_page(soup)
+    soup, rows = fetch_list_page(method="GET")
     all_rows = list(rows)
 
     page_num = 1
@@ -169,9 +202,7 @@ def fetch_all_list_rows(from_date):
         state = extract_form_state(soup)
         state["__EVENTTARGET"] = PAGER_EVENT_TARGET
         state["__EVENTARGUMENT"] = f"Page${page_num}"
-        html = fetch(LIST_PAGE_URL, method="POST", data=state)
-        soup = BeautifulSoup(html, "html.parser")
-        rows = parse_list_page(soup)
+        soup, rows = fetch_list_page(method="POST", data=state)
         if not rows:
             break
         all_rows.extend(rows)
@@ -189,11 +220,22 @@ def parse_detail_page(html):
     return info
 
 
+def fetch_detail_info(url):
+    """Fetch + parse trang chi tiết, retry tối đa PARSE_RETRIES lần nếu không thấy nhãn
+    'Số ký hiệu' (parse rỗng/hỏng do response lỗi thoáng qua)."""
+    info = {}
+    for _ in range(PARSE_RETRIES):
+        html = fetch(url, method="GET")
+        info = parse_detail_page(html)
+        if info.get("Số ký hiệu"):
+            return info
+    return info
+
+
 def enrich_with_detail(doc):
-    html = fetch(doc["link_goc"], method="GET")
-    info = parse_detail_page(html)
+    info = fetch_detail_info(doc["link_goc"])
     if info.get("Số ký hiệu"):
-        doc["so_hieu"] = info["Số ký hiệu"]
+        doc["so_hieu"] = normalize_so_hieu(info["Số ký hiệu"])
     doc["ngay_ban_hanh"] = vn_date_dash_to_iso(info.get("Ngày ban hành")) or doc.get("ngay_ban_hanh")
     doc["ngay_hieu_luc"] = vn_date_dash_to_iso(info.get("Ngày có hiệu lực"))
     doc["loai"] = info.get("Loại văn bản")
