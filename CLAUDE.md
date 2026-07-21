@@ -48,6 +48,18 @@ KHÔNG crawl thuvienphapluat.vn / luatvietnam.vn (nội dung trả phí, ToS ch�
   `possibly_truncated: true` trong output → agent tự fetch bù (xem "Self-healing").
 - Trang chi tiết đôi khi trả `502 Bad Gateway` thoáng qua — script retry tối đa 3 lần cho
   status `502/503/504` (đã có sẵn trong `fetch()`).
+- **Flaky parse thoáng qua (xác nhận 2026-07-21):** đôi khi cả trang danh sách (GET trang 1)
+  lẫn trang chi tiết trả về HTTP 200 nhưng nội dung không parse ra dòng/nhãn nào (không phải
+  đổi cấu trúc trang — fetch lại vài giây sau parse bình thường; nghi do mạng/proxy chập
+  chờn, không phải lỗi từ phía vanban.chinhphu.vn). Script (`fetch_list_page`,
+  `fetch_detail_info`) giờ tự retry tối đa `PARSE_RETRIES = 3` lần khi parse ra rỗng
+  (0 dòng danh sách, hoặc thiếu nhãn "Số ký hiệu" ở trang chi tiết) trước khi chấp nhận kết
+  quả rỗng/hỏng — KHÔNG tính là "đổi cấu trúc trang" trừ khi rỗng cả 3 lần liên tiếp.
+- **Ký tự Cyrillic giả Latin trong so_hieu:** một số bản ghi trên trang nguồn có `so_hieu`
+  lẫn ký tự Cyrillic nhìn giống hệt Latin (vd. `Р` U+0420 thay cho `P` U+0050). Script
+  (`normalize_so_hieu`) tự chuẩn hoá các ký tự nhìn-giống-Latin (А В Е К М Н О Р С Т Х và
+  chữ thường tương ứng) về Latin trước khi ghi `so_hieu`/dedupe — áp dụng cho cả `so_hieu`
+  lấy từ trang danh sách và trang chi tiết.
 - Mỗi dòng trong `table.search-result tr`: `span.code` (so_hieu) nằm trong thẻ `a` cha
   (`link_goc`, dạng `/?pageid=...&docid=...&classid=1`), `span.issued-date` (ngày ban hành,
   `DD/MM/YYYY`), `span.substract` (trích yếu rút gọn).
