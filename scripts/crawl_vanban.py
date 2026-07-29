@@ -80,9 +80,10 @@ def fetch(url, method="GET", data=None, params=None, retries=3):
     raise last_exc
 
 
-# Một số so_hieu trên trang nguồn lẫn ký tự Cyrillic trông giống hệt Latin (vd. 'Р'
-# U+0420 thay cho 'P' U+0050) — chuẩn hoá về Latin để khớp SO_HIEU_RE và tránh trùng lặp
-# giả trong index.json.
+# Một số so_hieu (và, xác nhận 2026-07-29, cả trich_yeu khi văn bản tham chiếu số hiệu văn
+# bản khác — vd. "Thông tư số 87/2019/TT- BТC") trên trang nguồn lẫn ký tự Cyrillic trông
+# giống hệt Latin (vd. 'Р' U+0420 thay cho 'P' U+0050) — chuẩn hoá về Latin để khớp
+# SO_HIEU_RE, tránh trùng lặp giả trong index.json, và tránh rác ký tự trong trích yếu.
 _CYRILLIC_TO_LATIN = str.maketrans({
     "А": "A", "В": "B", "Е": "E", "К": "K", "М": "M", "Н": "H", "О": "O",
     "Р": "P", "С": "C", "Т": "T", "Х": "X",
@@ -90,10 +91,16 @@ _CYRILLIC_TO_LATIN = str.maketrans({
 })
 
 
-def normalize_so_hieu(text):
+def normalize_cyrillic(text):
+    """Chuẩn hoá ký tự Cyrillic nhìn-giống-Latin về Latin. Dùng cho so_hieu VÀ trich_yeu
+    (trích yếu đôi khi chứa số hiệu của văn bản khác bị lỗi tương tự)."""
     if not text:
         return text
     return text.translate(_CYRILLIC_TO_LATIN)
+
+
+# Alias giữ tương thích tên cũ.
+normalize_so_hieu = normalize_cyrillic
 
 
 def vn_date_slash_to_iso(text):
@@ -159,9 +166,9 @@ def parse_list_page(soup):
         date_span = tr.select_one("span.issued-date")
         substract = tr.select_one("span.substract")
         docs.append({
-            "so_hieu": normalize_so_hieu(code_span.get_text(strip=True)),
+            "so_hieu": normalize_cyrillic(code_span.get_text(strip=True)),
             "ngay_ban_hanh": vn_date_slash_to_iso(date_span.get_text(strip=True) if date_span else ""),
-            "trich_yeu": substract.get_text(strip=True) if substract else None,
+            "trich_yeu": normalize_cyrillic(substract.get_text(strip=True)) if substract else None,
             "link_goc": href,
         })
     return docs
@@ -235,13 +242,13 @@ def fetch_detail_info(url):
 def enrich_with_detail(doc):
     info = fetch_detail_info(doc["link_goc"])
     if info.get("Số ký hiệu"):
-        doc["so_hieu"] = normalize_so_hieu(info["Số ký hiệu"])
+        doc["so_hieu"] = normalize_cyrillic(info["Số ký hiệu"])
     doc["ngay_ban_hanh"] = vn_date_dash_to_iso(info.get("Ngày ban hành")) or doc.get("ngay_ban_hanh")
     doc["ngay_hieu_luc"] = vn_date_dash_to_iso(info.get("Ngày có hiệu lực"))
     doc["loai"] = info.get("Loại văn bản")
     doc["co_quan"] = info.get("Cơ quan ban hành")
     if info.get("Trích yếu"):
-        doc["trich_yeu"] = info["Trích yếu"]
+        doc["trich_yeu"] = normalize_cyrillic(info["Trích yếu"])
     doc["nguon"] = "vanban.chinhphu.vn"
     return doc
 

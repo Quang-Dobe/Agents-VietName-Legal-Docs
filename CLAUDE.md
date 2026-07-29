@@ -55,11 +55,23 @@ KHÔNG crawl thuvienphapluat.vn / luatvietnam.vn (nội dung trả phí, ToS ch�
   `fetch_detail_info`) giờ tự retry tối đa `PARSE_RETRIES = 3` lần khi parse ra rỗng
   (0 dòng danh sách, hoặc thiếu nhãn "Số ký hiệu" ở trang chi tiết) trước khi chấp nhận kết
   quả rỗng/hỏng — KHÔNG tính là "đổi cấu trúc trang" trừ khi rỗng cả 3 lần liên tiếp.
-- **Ký tự Cyrillic giả Latin trong so_hieu:** một số bản ghi trên trang nguồn có `so_hieu`
-  lẫn ký tự Cyrillic nhìn giống hệt Latin (vd. `Р` U+0420 thay cho `P` U+0050). Script
-  (`normalize_so_hieu`) tự chuẩn hoá các ký tự nhìn-giống-Latin (А В Е К М Н О Р С Т Х và
-  chữ thường tương ứng) về Latin trước khi ghi `so_hieu`/dedupe — áp dụng cho cả `so_hieu`
-  lấy từ trang danh sách và trang chi tiết.
+- **Ký tự Cyrillic giả Latin trong so_hieu (mở rộng sang trich_yeu, xác nhận 2026-07-29):**
+  một số bản ghi trên trang nguồn có `so_hieu` lẫn ký tự Cyrillic nhìn giống hệt Latin
+  (vd. `Р` U+0420 thay cho `P` U+0050). Đồng thời phát hiện cùng lỗi này xuất hiện cả trong
+  `trich_yeu` khi trích yếu có nhắc tới số hiệu của một văn bản KHÁC bị lỗi tương tự (vd. văn
+  bản `105/2026/TT-BTC` có trích yếu "Bãi bỏ Thông tư số 87/2019/TT- BТC..." — chữ `Т` trong
+  "BТC" là Cyrillic U+0422). Script (`normalize_cyrillic`, tên cũ `normalize_so_hieu` vẫn còn
+  alias) tự chuẩn hoá các ký tự nhìn-giống-Latin (А В Е К М Н О Р С Т Х và chữ thường tương
+  ứng) về Latin trước khi ghi — áp dụng cho CẢ `so_hieu` LẪN `trich_yeu`, lấy từ cả trang danh
+  sách và trang chi tiết.
+- **Dữ liệu nguồn có thể tự mâu thuẫn (quan sát 2026-07-29):** văn bản `106/2026/TT-BTC` có
+  "Ngày ban hành" = `22-07-2026` nhưng "Ngày có hiệu lực" hiển thị = `22-07-2025` (SỚM HƠN 1
+  năm so với ngày ban hành) ngay trên trang chi tiết của chính vanban.chinhphu.vn — đã xác
+  nhận đây là lỗi nhập liệu của nguồn (không phải lỗi parse của script, HTML thô đã kiểm tra
+  trực tiếp cho kết quả tương tự). Trường hợp này sẽ FAIL rule validate #3
+  (`ngay_hieu_luc ≥ ngay_ban_hanh`) — agent gộp/validate dữ liệu cần tự quyết định xử lý
+  (vd. đặt `ngay_hieu_luc: null` kèm ghi chú, hoặc giữ nguyên và note bất thường) thay vì coi
+  đây là bug crawler.
 - Mỗi dòng trong `table.search-result tr`: `span.code` (so_hieu) nằm trong thẻ `a` cha
   (`link_goc`, dạng `/?pageid=...&docid=...&classid=1`), `span.issued-date` (ngày ban hành,
   `DD/MM/YYYY`), `span.substract` (trích yếu rút gọn).
