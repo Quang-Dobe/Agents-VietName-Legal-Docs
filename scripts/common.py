@@ -1,7 +1,16 @@
 """Hằng số schema + helper dùng chung cho các script của vn-legal-docs-weekly."""
 import json
 import re
+import sys
 from pathlib import Path
+
+# Windows console mặc định dùng cp1252, không encode được tiếng Việt trong print()
+# → UnicodeEncodeError, script exit code 1 dù dữ liệu đã ghi file thành công. Ép UTF-8
+# ở đây (module dùng chung, import trước mọi print() trong từng script) thay vì lặp lại
+# ở từng script riêng.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8")
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO_ROOT / "data"

@@ -43,6 +43,18 @@
     "trang_thai": "con_hieu_luc",
     "tuan": "2026/week-31"
   },
+  "121/2026/VBHN-PL-VPQH": {
+    "trang_thai": "chua_hieu_luc",
+    "tuan": "2026/week-32"
+  },
+  "122/2026/VBHN-NQ-VPQH": {
+    "trang_thai": "chua_hieu_luc",
+    "tuan": "2026/week-32"
+  },
+  "123/2026/VBHN-PL-VPQH": {
+    "trang_thai": "chua_hieu_luc",
+    "tuan": "2026/week-32"
+  },
   "15/2026/TT-BNV": {
     "trang_thai": "con_hieu_luc",
     "tuan": "2026/week-27"
@@ -411,6 +423,26 @@
     "trang_thai": "chua_hieu_luc",
     "tuan": "2026/week-32"
   },
+  "305/2026/NĐ-CP": {
+    "trang_thai": "chua_hieu_luc",
+    "tuan": "2026/week-32"
+  },
+  "306/2026/NĐ-CP": {
+    "trang_thai": "con_hieu_luc",
+    "tuan": "2026/week-32"
+  },
+  "307/2026/NĐ-CP": {
+    "trang_thai": "chua_hieu_luc",
+    "tuan": "2026/week-32"
+  },
+  "308/2026/NĐ-CP": {
+    "trang_thai": "con_hieu_luc",
+    "tuan": "2026/week-32"
+  },
+  "309/2026/NĐ-CP": {
+    "trang_thai": "con_hieu_luc",
+    "tuan": "2026/week-32"
+  },
   "31/2026/NQ-CP": {
     "trang_thai": "con_hieu_luc",
     "tuan": "2026/week-26"
@@ -422,6 +454,18 @@
   "31/2026/TT-BYT": {
     "trang_thai": "chua_hieu_luc",
     "tuan": "2026/week-29"
+  },
+  "310/2026/NĐ-CP": {
+    "trang_thai": "con_hieu_luc",
+    "tuan": "2026/week-32"
+  },
+  "311/2026/NĐ-CP": {
+    "trang_thai": "chua_hieu_luc",
+    "tuan": "2026/week-32"
+  },
+  "313/2026/NĐ-CP": {
+    "trang_thai": "chua_hieu_luc",
+    "tuan": "2026/week-32"
   },
   "32/2026/NQ-CP": {
     "trang_thai": "con_hieu_luc",
@@ -507,6 +551,10 @@
     "trang_thai": "con_hieu_luc",
     "tuan": "2026/week-26"
   },
+  "37/2026/NQ-CP": {
+    "trang_thai": "con_hieu_luc",
+    "tuan": "2026/week-32"
+  },
   "37/2026/QĐ-TTg": {
     "trang_thai": "con_hieu_luc",
     "tuan": "2026/week-29"
@@ -543,6 +591,14 @@
     "trang_thai": "con_hieu_luc",
     "tuan": "2026/week-26"
   },
+  "39/2026/TT-NHNN": {
+    "trang_thai": "chua_hieu_luc",
+    "tuan": "2026/week-32"
+  },
+  "40/2026/QĐ-TTg": {
+    "trang_thai": "con_hieu_luc",
+    "tuan": "2026/week-32"
+  },
   "40/2026/TT-BCT": {
     "trang_thai": "chua_hieu_luc",
     "tuan": "2026/week-27"
@@ -550,6 +606,10 @@
   "40/2026/TT-BXD": {
     "trang_thai": "con_hieu_luc",
     "tuan": "2026/week-26"
+  },
+  "41/2026/QĐ-TTg": {
+    "trang_thai": "chua_hieu_luc",
+    "tuan": "2026/week-32"
   },
   "41/2026/TT-BCT": {
     "trang_thai": "chua_hieu_luc",
@@ -635,6 +695,10 @@
     "trang_thai": "chua_hieu_luc",
     "tuan": "2026/week-28"
   },
+  "59/2026/QĐ-UBND": {
+    "trang_thai": "chua_hieu_luc",
+    "tuan": "2026/week-32"
+  },
   "59/2026/TT-BGDĐT": {
     "trang_thai": "chua_hieu_luc",
     "tuan": "2026/week-29"
@@ -678,6 +742,10 @@
   "63/VBHN-TT-BCT": {
     "trang_thai": "chua_hieu_luc",
     "tuan": "2026/week-28"
+  },
+  "64/2026/VBHN-TT-BXD": {
+    "trang_thai": "chua_hieu_luc",
+    "tuan": "2026/week-32"
   },
   "64/VBHN-TT-BCT": {
     "trang_thai": "chua_hieu_luc",
