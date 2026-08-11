@@ -91,12 +91,24 @@ KHÔNG crawl thuvienphapluat.vn / luatvietnam.vn (nội dung trả phí, ToS ch�
   `Ngày hiệu lực` (`DD/MM/YYYY`, có thể rỗng), `Trích yếu`.
 - Một số văn bản congbao thuộc loại ngoài enum `loai` của schema (vd. công điện, chỉ thị) —
   các văn bản này bị loại khi validate; chỉ giữ văn bản khớp `LOAI_HOP_LE`.
-- **Độ trễ đăng công báo (quan sát 2026-07-15):** danh sách "Văn bản mới nhất" sort đúng theo
-  `ngay_ban_hanh` giảm dần, nhưng việc đăng lên công báo có độ trễ so với ngày ban hành thực tế
-  (có thể tới ~1 tuần). Vì vậy khi crawl với `--to` gần ngày hiện tại, kết quả `0 văn bản` sau
-  đúng 1 request (dừng ngay ở trang 1 vì văn bản mới nhất đã cũ hơn `--from`) là **kết quả hợp
-  lệ**, KHÔNG phải lỗi script — cần xác nhận bằng cách fetch tay 2-3 trang đầu xem ngày có giảm
-  dần đơn điệu hay không trước khi kết luận có bug.
+- **Độ trễ đăng công báo (quan sát 2026-07-15, xác nhận lại 2026-08-11):** danh sách "Văn bản
+  mới nhất" sort đúng theo `ngay_ban_hanh` giảm dần, nhưng việc đăng lên công báo có độ trễ so
+  với ngày ban hành thực tế (có thể tới ~1 tuần). Vì vậy khi crawl với `--to` gần ngày hiện tại,
+  kết quả `0 văn bản` sau đúng 1 request (dừng ngay ở trang 1 vì văn bản mới nhất đã cũ hơn
+  `--from`) là **kết quả hợp lệ**, KHÔNG phải lỗi script — cần xác nhận bằng cách fetch tay 2-3
+  trang đầu xem ngày có giảm dần đơn điệu hay không trước khi kết luận có bug. Run 2026-08-11
+  (`--from 2026-08-02 --to 2026-08-11`, ngày chạy = 2026-08-11): văn bản mới nhất trên công báo
+  tại thời điểm đó có `ngay_ban_hanh = 2026-08-05` → độ trễ ~6 ngày, khớp quan sát cũ.
+- **Bug console Windows (xác nhận 2026-08-11, sửa tận gốc 2026-08-11):** `print()` dòng tổng
+  kết cuối script chứa tiếng Việt có dấu → trên console Windows mặc định (codepage `cp1252`,
+  không phải UTF-8) ném `UnicodeEncodeError` và script exit code `1` **dù file JSON đã được
+  ghi thành công** trước đó (lỗi xảy ra ở dòng `print` cuối, sau `json.dump`). Ban đầu vá
+  riêng trong `crawl_congbao.py`, sau đó phát hiện `merge_dedupe.py` gặp lỗi tương tự → sửa
+  tận gốc trong `scripts/common.py` (ép `sys.stdout`/`sys.stderr` sang `encoding="utf-8"` qua
+  `reconfigure()` ngay khi import `common`) vì **mọi** script (`crawl_vanban`, `crawl_congbao`,
+  `merge_dedupe`, `update_status`, `validate_data`, `build_site`) đều import module này. Nếu
+  caller/CI kiểm tra exit code để quyết định fail/success, cần lưu ý bug này đã được vá —
+  không phải lỗi cấu trúc trang hay dữ liệu.
 
 ### Quy tắc crawl
 
